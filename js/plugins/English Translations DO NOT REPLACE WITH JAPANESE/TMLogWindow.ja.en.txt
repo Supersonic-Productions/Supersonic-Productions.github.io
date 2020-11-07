@@ -1,0 +1,504 @@
+ // ================================================ =============================
+// TMPlugin --Log window
+// Version: 1.0.0
+// Last updated: 2017/07/21
+// Distributor: http://hikimoki.sakura.ne.jp/
+// ------------------------------------------------ -----------------------------
+// Copyright (c) 2017 tomoaky
+// Released under the MIT license.
+// http://opensource.org/licenses/mit-license.php
+// ================================================ =============================
+
+/ *:
+ * @plugindesc Shows a log window in the map scene.
+ *
+ * @author tomoaky (http://hikimoki.sakura.ne.jp/)
+ *
+ * @param logWindowX
+ * @type string
+ * @desc The X coordinate of the log window.
+ * Initial value: 0
+ * @default 0
+ *
+ * @param logWindowY
+ * @type string
+ * @desc The Y coordinate of the log window.
+ * Initial value: 460
+ * @ default 460
+ *
+ * @param logWindowWidth
+ * @type number
+ * @desc The width of the log window.
+ * Initial value: 480
+ * @ default 480
+ *
+ * @param lines
+ * @type number
+ * @desc The number of lines in the log window.
+ * Initial value: 6
+ * @default 6
+ *
+ * @param lineHeight
+ * @type number
+ * @desc The height of one line in the log window.
+ * Initial value: 24
+ * @default 24
+ * 
+ * @param padding
+ * @type number
+ * @desc The size of the log window margin.
+ * Initial value: 10
+ * @default 10
+ *
+ * @param fontSize
+ * @type number
+ * @desc The font size of the log window.
+ * Initial value: 20
+ * @default 20
+ *
+ * @param startVisible
+ * @type boolean
+ * @desc Display status at the start of the game.
+ * Initial value: ON (false = OFF hidden / true = ON displayed)
+ * @default true
+ *
+ * @param collideOpacity
+ * @type number
+ * @desc Opacity when overlapping with the player.
+ * Initial value: 128 (0 to 255)
+ * @ default 128
+ *
+ * @param messageBusyHide
+ * @type boolean
+ * @desc Hide the log window while the message window is displayed.
+ * Initial value: ON (false = OFF do not hide / true = ON hide)
+ * @default true
+ *
+ * @param eventBusyHide
+ * @type boolean
+ * Hide the log window while the @desc event is running.
+ * Initial value: ON (false = OFF do not hide / true = ON hide)
+ * @default true
+ * 
+ * @param maxLogs
+ * @type number
+ * @desc Maximum number of lines in the log to save.
+ * Initial value: 30
+ * @default 30
+ *
+ * @help
+ * TMPlugin --Log window ver1.0.0
+ * 
+ * How to use:
+ * 
+ * Installing the plugin will add a log window to the map scene.
+ * Write manually using plugin commands or in posting mode
+ * You can display the text in the log window by writing automatically.
+ * 
+ * This plug-in has been confirmed to work with RPG Maker MV Version 1.5.0.
+ *
+ * This plugin is distributed under the MIT license, for commercial use,
+ * You can freely use it for modification and redistribution.
+ * 
+ *
+ * Plugin command:
+ * 
+ * showLogWindow
+ * Display the log window.
+ * 
+ * hideLogWindow
+ * Hide the log window.
+ * 
+ * addLog text
+ * Add text to the log window.
+ * Some control characters can also be used (\ V [n], \ N [n], \ P [n], \ G, \ C [n])
+ * 
+ * startMirrorLogWindow
+ * Enable posting mode to trace the event command "Display text".
+ * 
+ * stopMirrorLogWindow
+ * Disables the features enabled in startMirrorLogWindow.
+ * 
+ * startAutoLogWindow
+ * When used in combination with compatible plugins such as "TMJumpAction.js"
+ * Enables the function to automatically add the reward information when defeating an enemy to the log.
+ * This feature is automatically turned on at the start of the game.
+ * 
+ * stopAutoLogWindow
+ * start Disables the features enabled in AutoLogWindow.
+ * 
+ * openLogScene
+ * Move to the log confirmation scene.
+ * 
+ * 
+ * Plugin parameter supplement:
+ * 
+ * padding
+ * The number of dots to the text display area and the outside of the window frame.
+ * The height (vertical size) of the window is calculated by the following formula.
+ * Line Height * Number of lines (lines) + Margins (padding) * 2
+ * Vertical if you want the window to fit exactly at the bottom of the screen
+ * Set the value obtained by subtracting the result of the above formula from the screen size to logWindowY
+ * Please set.
+ * /
+
+var Imported = Imported || {};
+Imported.TMLogWindow = true;
+
+(function () {
+
+ parameters = PluginManager.parameters ('TMLogWindow');
+ logWindowX = + (parameters ['logWindowX'] || 0);
+ logWindowY = + (parameters ['logWindowY'] || 464);
+ logWindowWidth = + (parameters ['logWindowWidth'] || 480);
+ logWindowLines = + (parameters ['lines'] || 6);
+ logWindowLineHeight = + (parameters ['lineHeight'] || 24);
+ logWindowPadding = + (parameters ['padding'] || 10);
+ logWindowFontSize = + (parameters ['fontSize'] || 20);
+ logWindowStartVisible = JSON.parse (parameters ['startVisible']);
+ logWindowCollideOpacity = + (parameters ['collideOpacity'] || 128);
+ logWindowMessageBusyHide = JSON.parse (parameters ['messageBusyHide']);
+ logWindowEventBusyHide = JSON.parse (parameters ['eventBusyHide']);
+ logWindowMaxLogs = + (parameters ['maxLogs'] || 20);
+
+ // ------------------------------------------------ -----------------------------
+ // Game_System
+ // //
+
+ var _Game_System_initialize = Game_System.prototype.initialize;
+ Game_System.prototype.initialize = function () {
+ _Game_System_initialize.call (this);
+ this._visibleLogWindow = logWindowStartVisible;
+ this._mirrorLogWindow = false;
+ this._autoLogWindow = true;
+ this._actionLog = [];
+ };
+ 
+ Game_System.prototype.isVisibleLogWindow = function () {
+ return this._visibleLogWindow;
+ };
+
+ Game_System.prototype.isMirrorLogWindow = function () {
+ return this._mirrorLogWindow;
+ };
+
+ Game_System.prototype.isAutoLogWindow = function () {
+ return this._autoLogWindow;
+ };
+
+ Game_System.prototype.setVisibleLogWindow = function (visible) {
+ this._visibleLogWindow = visible;
+ };
+
+ Game_System.prototype.setMirrorMode = function (flag) {
+ this._mirrorLogWindow = flag;
+ };
+
+ Game_System.prototype.setAutoMode = function (flag) {
+ this._autoLogWindow = flag;
+ };
+ 
+ Game_System.prototype.addLog = function (text) {
+ this._actionLog.push (text);
+ if (this._actionLog.length> logWindowMaxLogs) {
+ this._actionLog.shift ();
+ }
+ this._needsActionLogRefresh = true;
+ };
+
+ Game_System.prototype.actionLog = function () {
+ return this._actionLog;
+ };
+ 
+ // ------------------------------------------------ -----------------------------
+ // Game_Message
+ // //
+
+ var _Game_Message_add = Game_Message.prototype.add;
+ Game_Message.prototype.add = function (text) {
+ _Game_Message_add.call (this, text);
+ if ($ gameSystem.isMirrorLogWindow ()) $ gameSystem.addLog (text);
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Game_Actor
+ // //
+
+ // Level up display
+ var _Game_Actor_displayLevelUp = Game_Actor.prototype.displayLevelUp;
+ Game_Actor.prototype.displayLevelUp = function (newSkills) {
+ _Game_Actor_displayLevelUp.call (this, newSkills);
+ if ($ gameSystem.isAutoLogWindow () &&! $ GameParty.inBattle ()) {
+ var text = TextManager.levelUp.format (this._name, TextManager.level, this._level);
+ $ gameSystem.addLog (text);
+ }
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Game_Event
+ // //
+
+ var _Game_Event_gainRewards = Game_Event.prototype.gainRewards;
+ Game_Event.prototype.gainRewards = function () {
+ if ($ gameSystem.isAutoLogWindow ()) {
+ var battler = this.battler ();
+ var exp = battler.exp ();
+ var gold = battler.gold ();
+ var text = battler.name () + $ dataStates [battler.deathStateId ()]. ​​message2;
+ var rewardText ='';
+ if (exp> 0) rewardText + ='' + exp +'\\ C [16]' + TextManager.expA +'\\ C [0]';
+ if (gold> 0) {
+ if (exp> 0) rewardText + ='/';
+ rewardText + ='' + gold +'\\ C [16]' + TextManager.currencyUnit +'\\ C [0]'; 
+ }
+ if (rewardText) text + ='(' + rewardText +')';
+ $ gameSystem.addLog (text)
+ }
+ _Game_Event_gainRewards.call (this);
+ };
+
+ var _Game_Event_gainRewardItem = Game_Event.prototype.gainRewardItem;
+ Game_Event.prototype.gainRewardItem = function (item, y) {
+ _Game_Event_gainRewardItem.call (this, item, y);
+ if ($ gameSystem.isAutoLogWindow ()) {
+ var text = TextManager.obtainItem.format (item.name);
+ $ gameSystem.addLog (text);
+ }
+ };
+ 
+ // ------------------------------------------------ -----------------------------
+ // Game_Interpreter
+ // //
+
+ // Plugin command
+ var _Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+ Game_Interpreter.prototype.pluginCommand = function (command, args) {
+ _Game_Interpreter_pluginCommand.call (this, command, args);
+ if (command ==='showLogWindow') {
+ $ gameSystem.setVisibleLogWindow (true);
+ } else if (command ==='hideLogWindow') {
+ $ gameSystem.setVisibleLogWindow (false);
+ } else if (command ==='addLog') {
+ $ gameSystem.addLog (args [0]);
+ } else if (command ==='startMirrorLogWindow') {
+ $ gameSystem.setMirrorMode (true);
+ } else if (command ==='stopMirrorLogWindow') {
+ $ gameSystem.setMirrorMode (false);
+ } else if (command ==='startAutoLogWindow') {
+ $ gameSystem.setAutoMode (true);
+ } else if (command ==='stopAutoLogWindow') {
+ $ gameSystem.setAutoMode (false);
+ } else if (command ==='openLogScene') {
+ SceneManager.push (Scene_Log);
+ }
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Window_MapLog
+ // //
+
+ function Window_MapLog () {
+ this.initialize.apply (this, arguments);
+ }
+
+ Window_MapLog.prototype = Object.create (Window_Base.prototype);
+ Window_MapLog.prototype.constructor = Window_MapLog;
+
+ Window_MapLog.prototype.initialize = function () {
+ var x = logWindowX;
+ var y = logWindowY;
+ var wight = this.windowWidth ();
+ var height = this.windowHeight ();
+ Window_Base.prototype.initialize.call (this, x, y, wight, height);
+ this.openness = $ gameSystem.isVisibleLogWindow ()? 255: 0;
+ this.opacity = 255;
+ this.contentsOpacity = 255;
+ this._hideCount = 0;
+ this.refresh ();
+ };
+
+ Window_MapLog.prototype.standardFontSize = function () {
+ return logWindowFontSize;
+ };
+
+ // Get the width of the window
+ Window_MapLog.prototype.windowWidth = function () {
+ return logWindowWidth;
+ };
+
+ // Get the height of the window
+ Window_MapLog.prototype.windowHeight = function () {
+ return this.fittingHeight (logWindowLines);
+ };
+
+ // Get standard padding
+ Window_MapLog.prototype.standardPadding = function () {
+ return logWindowPadding;
+ };
+
+ // Get the height of one line of the window
+ Window_MapLog.prototype.lineHeight = function () {
+ return logWindowLineHeight;
+ };
+
+ // Frame update
+ Window_MapLog.prototype.update = function () {
+ Window_Base.prototype.update.call (this);
+ if (this.updateVisibility ()) {
+ this.open ();
+ if ($ gameSystem._needsActionLogRefresh) {
+ this.refresh ();
+ $ gameSystem._needsActionLogRefresh = false;
+ }
+ this.updateOpacity ();
+ } else {
+ this.close ();
+ }
+ };
+
+ // Update window display status
+ Window_MapLog.prototype.updateVisibility = function () {
+ if (! $ GameSystem.isVisibleLogWindow ()) return false;
+ if ((logWindowEventBusyHide && $ gameMap.isEventRunning ()) ||
+ (logWindowMessageBusyHide && $ gameMessage.isBusy ())) {
+ this._hideCount ++;
+ } else {
+ this._hideCount = 0;
+ }
+ return this._hideCount <10;
+ };
+
+ // Update opacity
+ Window_MapLog.prototype.updateOpacity = function () {
+ if (this.x <$ gamePlayer.screenX () + 24 &&
+ this.x + this.windowWidth ()> $ gamePlayer.screenX () --24 &&
+ this.y <$ gamePlayer.screenY () &&
+ this.y + this.windowHeight ()> $ gamePlayer.screenY () --48) {
+ this.opacity = logWindowCollideOpacity;
+ } else {
+ this.opacity = 255;
+ }
+ this.contentsOpacity = this.opacity;
+ };
+
+ // refresh
+ Window_MapLog.prototype.refresh = function () {
+ this.contents.clear ();
+ var actionLog = $ gameSystem.actionLog ();
+ var lh = this.lineHeight ();
+ var n = Math.min (logWindowLines, actionLog.length);
+ for (var i = 0; i <n; i ++) {
+ var text = this.convertEscapeCharacters (actionLog [actionLog.length --n + i]);
+ this.drawTextEx (text, 0, lh * i);
+ }
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Window_MenuLog
+ // //
+
+ function Window_MenuLog () {
+ this.initialize.apply (this, arguments);
+ }
+
+ Window_MenuLog.prototype = Object.create (Window_Selectable.prototype);
+ Window_MenuLog.prototype.constructor = Window_MenuLog;
+
+ Window_MenuLog.prototype.initialize = function () {
+ Window_Selectable.prototype.initialize.call (this, 0, 0, Graphics.boxWidth, Graphics.boxHeight);
+ this._data = $ gameSystem.actionLog ();
+ this.refresh ();
+ this.select (Math.max (this._data.length --1, 0));
+ this.activate ();
+ };
+
+ Window_MenuLog.prototype.standardFontSize = function () {
+ return logWindowFontSize;
+ };
+
+ Window_MenuLog.prototype.standardPadding = function () {
+ return logWindowPadding;
+ };
+
+ Window_MenuLog.prototype.lineHeight = function () {
+ return logWindowLineHeight;
+ };
+
+ Window_MenuLog.prototype.maxItems = function () {
+ return this._data? this._data.length: 1;
+ };
+
+ Window_MenuLog.prototype.item = function () {
+ var index = this.index ();
+ return this._data && index> = 0? this._data [index]: null;
+ };
+
+ Window_MenuLog.prototype.drawItem = function (index) {
+ var item = this._data [index];
+ if (item) {
+ var rect = this.itemRectForText (index);
+ var text = this.convertEscapeCharacters (item);
+ this.drawTextEx (text, 0, rect.y);
+ }
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Scene_Map
+ // //
+
+ var _Scene_Map_createDisplayObjects = Scene_Map.prototype.createDisplayObjects;
+ Scene_Map.prototype.createDisplayObjects = function () {
+ _Scene_Map_createDisplayObjects.call (this);
+ this.createMapLogWindow ();
+ };
+
+ // Create log window
+ Scene_Map.prototype.createMapLogWindow = function () {
+ this._mapLogWindow = new Window_MapLog ();
+ this.addChild (this._mapLogWindow);
+ };
+
+ var _Scene_Map_terminate = Scene_Map.prototype.terminate;
+ Scene_Map.prototype.terminate = function () {
+ if (! SceneManager.isNextScene (Scene_Battle)) {
+ this._mapLogWindow.hide ();
+ }
+ _Scene_Map_terminate.call (this);
+ };
+
+ var _Scene_Map_launchBattle = Scene_Map.prototype.launchBattle;
+ Scene_Map.prototype.launchBattle = function () {
+ this._mapLogWindow.hide ();
+ this.removeChild (this._mapLogWindow);
+ this._mapLogWindow = null;
+ _Scene_Map_launchBattle.call (this);
+ };
+ 
+ // ------------------------------------------------ -----------------------------
+ // Scene_Log
+ // //
+
+ function Scene_Log () {
+ this.initialize.apply (this, arguments);
+ }
+
+ Scene_Log.prototype = Object.create (Scene_MenuBase.prototype);
+ Scene_Log.prototype.constructor = Scene_Log;
+
+ Scene_Log.prototype.initialize = function () {
+ Scene_MenuBase.prototype.initialize.call (this);
+ };
+
+ Scene_Log.prototype.create = function () {
+ Scene_MenuBase.prototype.create.call (this);
+ this.createCreditsWindow ();
+ };
+
+ Scene_Log.prototype.createCreditsWindow = function () {
+ this._logWindow = new Window_MenuLog ();
+ this._logWindow.setHandler ('ok', this.popScene.bind (this));
+ this._logWindow.setHandler ('cancel', this.popScene.bind (this));
+ this.addWindow (this._logWindow);
+ };
+
+}) ();

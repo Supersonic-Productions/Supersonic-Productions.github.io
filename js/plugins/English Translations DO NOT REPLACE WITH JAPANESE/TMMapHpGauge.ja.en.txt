@@ -1,0 +1,770 @@
+ // ================================================ =============================
+// TMPlugin --Map HP Gauge
+// Version: 1.3.1
+// Last updated: 2017/06/15
+// Distributor: http://hikimoki.sakura.ne.jp/
+// ------------------------------------------------ -----------------------------
+// Copyright (c) 2016 tomoaky
+// Released under the MIT license.
+// http://opensource.org/licenses/mit-license.php
+// ================================================ =============================
+
+/ *:
+ * @plugindesc Shows face graphics and HP gauges in the map scene.
+ * MP and variables can be displayed as gauges if necessary.
+ *
+ * @author tomoaky (http://hikimoki.sakura.ne.jp/)
+ *
+ * @param gaugeWindowX
+ * @type string
+ * @desc HP gauge window X coordinates
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeWindowY
+ * @type string
+ * @desc HP gauge window Y coordinate
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeWindowWidth
+ * @type number
+ * @desc HP gauge window width
+ * Initial value: 288
+ * @ default 288
+ *
+ * @param gaugeWindowHeight
+ * @type number
+ * @desc HP gauge window height
+ * Initial value: 64
+ * @default 64
+ *
+ * @param gaugeAType
+ * @type string
+ * @desc Gauge A type (HP / MP / TP / LV / VN)
+ * Initial value: HP
+ * @default HP
+ *
+ * @param gaugeAX
+ * @type string
+ * @desc The X coordinate of gauge A (the left edge in the window is 0)
+ * Initial value: 12
+ * @default 12
+ *
+ * @param gauge AY
+ * @type string
+ * @desc Y coordinate of gauge A (top of window is 0)
+ * Initial value: 12
+ * @default 12
+ *
+ * @param gaugeAWidth
+ * @type number
+ * @desc Gauge A length
+ * Initial value: 144
+ * @ default 144
+ *
+ * @param gaugeAHeight
+ * @type number
+ * @desc Height of gauge A display area (combined with numerical value and gauge)
+ * Initial value: 36
+ * @default 36
+ *
+ * @param gaugeAFontSize
+ * @type number
+ * @desc Gauge A font size
+ * Initial value: 28
+ * @default 28
+ *
+ * @param gaugeA Param
+ * @type variable
+ * @desc Game variable number to be the current value when the gauge A type is VN
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeAMax
+ * @type variable
+ * @desc Game variable number that is the maximum value when the gauge A type is VN
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeAName
+ * @type string
+ * @desc Parameter name to be displayed when the gauge A type is VN
+ * Initial value: AP
+ * @default AP
+ *
+ * @param gaugeAColor
+ * @type string
+ * @desc Gauge color when gauge A type is LV / VN
+ * Initial value: # ff60c0 # ffa0e0
+ * @ default # ff60c0 # ffa0e0
+ * 
+ * @param gaugeBType
+ * @type string
+ * @desc Gauge B type (HP / MP / TP / LV / VN)
+ * initial value: 
+ * @default 
+ *
+ * @param gaugeBX
+ * @type string
+ * @desc Gauge B X coordinate (the left edge in the window is 0)
+ * Initial value: 12
+ * @default 12
+ *
+ * @param gauge BY
+ * @type string
+ * @desc The Y coordinate of gauge B (the top edge of the window is 0)
+ * Initial value: 12
+ * @default 12
+ *
+ * @param gaugeBWidth
+ * @type number
+ * @desc Gauge B length
+ * Initial value: 144
+ * @ default 144
+ *
+ * @param gaugeBHeight
+ * @type number
+ * @desc Height of gauge B display area (combined with numerical value and gauge)
+ * Initial value: 36
+ * @default 36
+ *
+ * @param gaugeBFontSize
+ * @type number
+ * @desc Gauge B font size
+ * Initial value: 28
+ * @default 28
+ *
+ * @param gaugeBParam
+ * @type variable
+ * @desc Game variable number to be the current value when the gauge B type is VN
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeBMax
+ * @type variable
+ * @desc Game variable number that is the maximum value when the gauge B type is VN
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeBName
+ * @type string
+ * @desc Parameter name to be displayed when gauge B type is VN
+ * Initial value: BP
+ * @default BP
+ *
+ * @param gaugeBColor
+ * @type string
+ * @desc Gauge color when gauge B type is LV / VN
+ * Initial value: # ff60c0 # ffa0e0
+ * @ default # ff60c0 # ffa0e0
+ *
+ * @param gaugeCType
+ * @type string
+ * @desc Gauge C type (HP / MP / TP / LV / VN)
+ * initial value: 
+ * @default 
+ *
+ * @param gauge CX
+ * @type string
+ * @desc Gauge C X coordinate (the left edge of the window is 0)
+ * Initial value: 12
+ * @default 12
+ *
+ * @param gaugeCY
+ * @type string
+ * @desc The Y coordinate of gauge C (the top edge of the window is 0)
+ * Initial value: 12
+ * @default 12
+ *
+ * @param gaugeCWidth
+ * @type number
+ * @desc Gauge C length
+ * Initial value: 144
+ * @ default 144
+ *
+ * @param gauge CHeight
+ * @type number
+ * @desc Height of gauge C display area (combined with numerical value and gauge)
+ * Initial value: 36
+ * @default 36
+ *
+ * @param gaugeCFontSize
+ * @type number
+ * @desc Gauge C font size
+ * Initial value: 28
+ * @default 28
+ *
+ * @param gaugeCParam
+ * @type variable
+ * @desc Game variable number to be the current value when the gauge C type is VN
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeCMax
+ * @type variable
+ * @desc Game variable number that is the maximum value when the gauge C type is VN
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeCName
+ * @type string
+ * @desc Parameter name to be displayed when the gauge C type is VN
+ * Initial value: CP
+ * @default CP
+ *
+ * @param gaugeCColor
+ * @type string
+ * @desc Gauge color when gauge C type is LV / VN
+ * Initial value: # ff60c0 # ffa0e0
+ * @ default # ff60c0 # ffa0e0
+ *
+ * @param gaugeDType
+ * @type string
+ * @desc Gauge D type (HP / MP / TP / LV / VN)
+ * initial value: 
+ * @default 
+ *
+ * @param gaugeDX
+ * @type string
+ * @desc The X coordinate of gauge D (the left edge in the window is 0)
+ * Initial value: 12
+ * @default 12
+ *
+ * @param gaugeDY
+ * @type string
+ * @desc The Y coordinate of gauge D (the top edge of the window is 0)
+ * Initial value: 12
+ * @default 12
+ *
+ * @param gaugeDWidth
+ * @type number
+ * @desc Gauge D length
+ * Initial value: 144
+ * @ default 144
+ *
+ * @param gaugeDHeight
+ * @type number
+ * @desc Height of gauge D display area (combined with numerical value and gauge)
+ * Initial value: 36
+ * @default 36
+ *
+ * @param gaugeDFontSize
+ * @type number
+ * @desc Gauge D font size
+ * Initial value: 28
+ * @default 28
+ *
+ * @param gaugeDParam
+ * @type variable
+ * @desc Game variable number to be the current value when the gauge D type is VN
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeDMax
+ * @type variable
+ * @desc Game variable number that is the maximum value when the gauge D type is VN
+ * Initial value: 0
+ * @default 0
+ *
+ * @param gaugeDName
+ * @type string
+ * @desc Parameter name to be displayed when the gauge D type is VN
+ * Initial value: DP
+ * @default DP
+ *
+ * @param gaugeDColor
+ * @type string
+ * @desc Gauge color when gauge D type is LV / VN
+ * Initial value: # ff60c0 # ffa0e0
+ * @ default # ff60c0 # ffa0e0
+ * 
+ * @param faceOffsetX
+ * @type string
+ * @desc X coordinate correction value of face graphic
+ * Initial value: -4
+ * @default -4
+ *
+ * @param faceOffsetY
+ * @type string
+ * @desc Y coordinate correction value of face graphic
+ * Initial value: -4
+ * @default -4
+ *
+ * @param stateIconMax
+ * @type number
+ * @desc Number of state icons to display
+ * Initial value: 4
+ * @default 4
+ *
+ * @param stateIconX
+ * @type string
+ * @desc X coordinate of state icon
+ * Initial value: 156
+ * @ default 156
+ *
+ * @param stateIconY
+ * @type string
+ * @desc Y coordinate of state icon
+ * Initial value: 24
+ * @default 24
+ *
+ * @param goldWidth
+ * @type number
+ * @desc Width of money display
+ * Initial value: 0 (hidden by 0)
+ * @default 0
+ *
+ * @param goldX
+ * @type string
+ * @desc X coordinate of money display
+ * Initial value: 12
+ * @default 12
+ *
+ * @param goldY
+ * @type string
+ * @desc Y coordinate of money display
+ * Initial value: 12
+ * @default 12
+ *
+ * @param shakeTime
+ * @type number
+ * @desc Time to shake the window when damaged (frame)
+ * Initial value: 20 (does not shake at 0)
+ * @default 20
+ *
+ * @param startVisible
+ * @type boolean
+ * @desc Display status at the start of the game
+ * Initial value: ON (false = OFF hidden / true = ON displayed)
+ * @default true
+ *
+ * @param windowOpacity
+ * @type number
+ * @desc HP gauge window opacity
+ * Initial value: 255
+ * @ default 255
+ *
+ * @param collideOpacity
+ * @type number
+ * @desc Opacity when overlapping with player
+ * Initial value: 128 (0 to 255)
+ * @ default 128
+ *
+ * @param messageBusyHide
+ * @type boolean
+ * @desc Hide HP gauge window while message window is displayed
+ * Initial value: ON (false = OFF do not hide / true = ON hide)
+ * @default true
+ *
+ * @param eventBusyHide
+ * @type boolean
+ * @desc Hide HP gauge window while event is running
+ * Initial value: ON (false = OFF do not hide / true = ON hide)
+ * @default true
+ *
+ * @help
+ * TMPlugin --Map HP Gauge ver1.3.1
+ * 
+ * How to use:
+ *
+ * Play with the plugin parameters to display your favorite HP gauge.
+ *
+ * This plug-in has been confirmed to work with RPG Maker MV Version 1.5.0.
+ *
+ *
+ * Plugin command:
+ *
+ * showHpGauge
+ * Display the HP gauge window.
+ * If the plugin parameter startVisible is 0,
+ * The HP gauge will not be displayed until this command is executed.
+ *
+ * showHpGauge A
+* Displays gauge A. If the type is set in the plugin parameters
+ * It will be displayed automatically when the game starts.
+ * 
+ * hideHpGauge
+* Hide the HP gauge window. Until the showHpGauge command is executed
+ * It remains invisible.
+ * 
+ * hideHpGauge B
+* Hide gauge B. Until the showHpGauge B command is executed
+ * It remains invisible.
+ *
+ *
+ * Plugin parameter supplement:
+ *
+ * gaugeAParam ~ gaugeDParam
+ * If the gauge type is VN, the game variable number to be treated as the current value of the gauge
+ * Please set.
+ *
+ * gaugeAMax ~ gaugeDMax
+ * When the gauge type is VN, the game variable number to be treated as the maximum value of the gauge
+* Please specify. To the game variable with the number set in this parameter
+ * By assigning a value, it functions as the maximum value for the first time.
+ * This setting only affects the length of the gauge drawn, the value of the variable is the maximum
+ * There is no effect that does not exceed.
+ * 
+ * windowOpacity / collideOpacity
+ * windowOpacity affects the window frame and background, collideOpacity
+ * Also affects gauges and face graphics.
+ * If the value of windowOpacity is lower than collideOpacity, then with the player
+ * The value of windowOpacity is applied as the opacity when overlapping.
+ * However, as for gauges and face graphics, collideOpacity's as usual
+ * The value applies.
+ * /
+
+var Imported = Imported || {};
+Imported.TMMapHpGauge = true;
+
+(function () {
+
+ var parameters = PluginManager.parameters ('TMMapHpGauge');
+ var gaugeWindowX = + (parameters ['gaugeWindowX'] || 0);
+ var gaugeWindowY = + (parameters ['gaugeWindowY'] || 0);
+ var gaugeWindowWidth = + (parameters ['gaugeWindowWidth'] || 288);
+ var gaugeWindowHeight = + (parameters ['gaugeWindowHeight'] || 64);
+ var gauges = [];
+ ['A','B','C','D']. forEach (function (code, i) {
+ gauges [i] = {
+ type: parameters ['gauge' + code +'Type'],
+ x: + (parameters ['gauge' + code +'X'] || 12),
+ y: + (parameters ['gauge' + code +'Y'] || 12),
+ width: + (parameters ['gauge' + code +'Width'] || 144),
+ height: + (parameters ['gauge' + code +'Height'] || 36),
+ fontSize: + (parameters ['gauge' + code +'FontSize'] || 28),
+ param: + (parameters ['gauge' + code +'Param'] || 0),
+ max: + (parameters ['gauge' + code +'Max'] || 0),
+ name: parameters ['gauge' + code +'Name'],
+ color: (parameters ['gauge' + code +'Color'] ||'# ff60c0 # ffa0e0'). split (''),
+ };
+ });
+ var faceOffsetX = + (parameters ['faceOffsetX'] || -4);
+ var faceOffsetY = + (parameters ['faceOffsetY'] || -4);
+ var stateIconMax = + (parameters ['stateIconMax'] || 4);
+ var stateIconX = + (parameters ['stateIconX'] || 156);
+ var stateIconY = + (parameters ['stateIconY'] || 24);
+ var goldWidth = + (parameters ['goldWidth'] || 0);
+ var goldX = + (parameters ['goldX'] || 0);
+ var goldY = + (parameters ['goldY'] || 0);
+ var shakeTime = + (parameters ['shakeTime'] || 20);
+ var collideOpacity = + (parameters ['collideOpacity'] || 128);
+ var startVisible = JSON.parse (parameters ['startVisible']);
+ var windowOpacity = + (parameters ['windowOpacity'] || 255);
+ var messageBusyHide = JSON.parse (parameters ['messageBusyHide']);
+ var eventBusyHide = JSON.parse (parameters ['eventBusyHide']);
+
+ // ------------------------------------------------ -----------------------------
+ // Game_System
+ // //
+
+ Game_System.prototype.isVisibleMapHpGauge = function () {
+ if (this._visibleMapHpGauge == null) this._visibleMapHpGauge = startVisible;
+ return this._visibleMapHpGauge;
+ };
+ 
+ Game_System.prototype.setVisibleMapHpGauge = function (flag) {
+ this._visibleMapHpGauge = flag;
+ };
+
+ Game_System.prototype.isVisibleMapHpGauges = function (gaugeId) {
+ if (this._visibleMapHpGauges == null) {
+ this._visibleMapHpGauges = [];
+ for (var i = 0; i <gauges.length; i ++) {
+ this._visibleMapHpGauges [i] = gauges [i] .type! =='';
+ }
+ }
+ return this._visibleMapHpGauges [gaugeId];
+ };
+
+ Game_System.prototype.setVisibleMapHpGauges = function (gaugeId, flag) {
+ this._visibleMapHpGauges [gaugeId] = flag;
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Game_Interpreter
+ // //
+
+ var _Game_Interpreter_pluginCommand = Game_Interpreter.prototype.pluginCommand;
+ Game_Interpreter.prototype.pluginCommand = function (command, args) {
+ _Game_Interpreter_pluginCommand.call (this, command, args);
+ if (command ==='showHpGauge') {
+ if (args [0]) {
+ var gaugeId = ['A','B','C','D']. IndexOf (args [0]);
+ $ gameSystem.setVisibleMapHpGauges (gaugeId, true);
+ } else {
+ $ gameSystem.setVisibleMapHpGauge (true);
+ }
+ } else if (command ==='hideHpGauge') {
+ if (args [0]) {
+ var gaugeId = ['A','B','C','D']. IndexOf (args [0]);
+ $ gameSystem.setVisibleMapHpGauges (gaugeId, false);
+ } else {
+ $ gameSystem.setVisibleMapHpGauge (false);
+ }
+ }
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Window_MapHpGauge
+ // //
+
+ function Window_MapHpGauge () {
+ this.initialize.apply (this, arguments);
+ }
+
+ Window_MapHpGauge.prototype = Object.create (Window_Base.prototype);
+ Window_MapHpGauge.prototype.constructor = Window_MapHpGauge;
+
+ Window_MapHpGauge.prototype.initialize = function () {
+ var x = gaugeWindowX;
+ var y = gaugeWindowY;
+ var wight = gaugeWindowWidth;
+ var height = gaugeWindowHeight;
+ Window_Base.prototype.initialize.call (this, x, y, wight, height);
+ this.openness = $ gameSystem.isVisibleMapHpGauge ()? 255: 0;
+ this.opacity = windowOpacity;
+ this._gaugeParams = [];
+ this._gaugeVisible = [];
+ for (var i = 0; i <gauges.length; i ++) {
+ this._gaugeParams.push ({param: -1, max: -1});
+ this._gaugeVisible [i] = $ gameSystem.isVisibleMapHpGauges (i);
+ }
+ this._icons = [];
+ this._gold = 0;
+ this._actorId = -1;
+ this._shakeDuration = 0;
+ this._baseX = x;
+ this._needFaceRefresh = false;
+ this._hideCount = 0;
+ };
+
+ Window_MapHpGauge.prototype.lineHeight = function () {
+ return this._lineHeight || 36;
+ };
+
+ Window_MapHpGauge.prototype.standardPadding = function () {
+ return 0;
+ };
+
+ Window_MapHpGauge.prototype.update = function () {
+ Window_Base.prototype.update.call (this);
+ if (this.updateVisibility ()) {
+ this.open ();
+ var needRefresh = this.isNeedRefresh ()
+ if (this._needFaceRefresh) {
+ this.refreshFace ();
+ if (! this._needFaceRefresh) needRefresh = true;
+ }
+ if (needRefresh) {
+ var actor = $ gameParty.leader ();
+ if (needRefresh ==='SHAKE') this._shakeDuration = shakeTime;
+ for (var i = 0; i <gauges.length; i ++) {
+ this._gaugeVisible [i] = $ gameSystem.isVisibleMapHpGauges (i);
+ var gauge = gauges [i];
+ if (gauge.type ==='HP') {
+ this._gaugeParams [i] .param = actor.hp;
+ this._gaugeParams [i] .max = actor.mhp;
+ } else if (gauge.type ==='MP') {
+ this._gaugeParams [i] .param = actor.mp;
+ this._gaugeParams [i] .max = actor.mmp;
+ } else if (gauge.type ==='TP') {
+ this._gaugeParams [i] .param = actor.tp;
+ this._gaugeParams [i] .max = actor.maxTp ();
+ } else if (gauge.type ==='LV') {
+ this._gaugeParams [i] .param = actor.currentExp ();
+ this._gaugeParams [i] .max = actor.nextLevelExp ();
+ this._gaugeParams [i] .subParam = actor.level;
+ } else if (gauge.type ==='VN') {
+ this._gaugeParams [i] .param = $ gameVariables.value (gauge.param);
+ this._gaugeParams [i] .max = $ gameVariables.value (gauge.max);
+ }
+ }
+ this._icons = actor.stateIcons (). Concat (actor.buffIcons ());
+ this._gold = $ gameParty.gold ();
+ this._actorId = actor.actorId ();
+ this.refresh ();
+ }
+ this.updateShake ();
+ this.updateOpacity ();
+ } else {
+ this.close ();
+ }
+ };
+
+ Window_MapHpGauge.prototype.updateVisibility = function () {
+ if (! $ GameSystem.isVisibleMapHpGauge ()) return false;
+ if ((eventBusyHide && $ gameMap.isEventRunning ()) ||
+ (messageBusyHide && $ gameMessage.isBusy ())) {
+ this._hideCount ++;
+ } else {
+ this._hideCount = 0;
+ }
+ return this._hideCount <10 && $ gameParty.leader ();
+ };
+
+ Window_MapHpGauge.prototype.isNeedRefresh = function () {
+ var actor = $ gameParty.leader ();
+ if (actor) {
+ if (this._actorId! == actor.actorId ()) return true;
+ for (var i = 0; i <gauges.length; i ++) {
+ if (this._gaugeVisible [i]! == $ gameSystem.isVisibleMapHpGauges (i)) return true;
+ var gauge = gauges [i];
+ var gaugeParam = this._gaugeParams [i];
+ if (gauge.type ==='HP') {
+ if (gaugeParam.param! == actor.hp || gaugeParam.max! == actor.mhp) {
+  return gaugeParam.param> actor.hp?'SHAKE': true;
+ }
+ } else if (gauge.type ==='MP') {
+ if (gaugeParam.param! == actor.mp || gaugeParam.max! == actor.mmp) return true;
+ } else if (gauge.type ==='TP') {
+ if (gaugeParam.param! == actor.tp || gaugeParam.max! == actor.maxTp ()) return true;
+ } else if (gauge.type ==='LV') {
+ if (gaugeParam.param! == actor.currentExp () || gaugeParam.max! == actor.nextLevelExp () ||
+ gaugeParam.subParam! == actor.level) return true;
+ } else if (gauge.type ==='VN') {
+ if (gaugeParam.param! == $ gameVariables.value (gauge.param) ||
+ gaugeParam.max! == $ gameVariables.value (gauge.max)) return true;
+ }
+ }
+ if (stateIconMax> 0) {
+ var icons = actor.stateIcons (). Concat (actor.buffIcons ());
+ if (this._icons.toString ()! == icons.toString ()) return true;
+ }
+ if (goldWidth> 0 && this._gold! == $ gameParty.gold ()) return true;
+ }
+ return false;
+ };
+
+ Window_MapHpGauge.prototype.updateShake = function () {
+ if (this._shakeDuration> 0) {
+ this._shakeDuration-;
+ this.x = this._baseX;
+ if (this._shakeDuration> 0) {
+ this.x + = Math.floor (Math.sin ((this._shakeDuration% 10) * Math.PI / 5) * 8);
+ }
+ }
+ };
+
+ Window_MapHpGauge.prototype.updateOpacity = function () {
+ if (this.x <$ gamePlayer.screenX () + 24 &&
+ this.x + gaugeWindowWidth> $ gamePlayer.screenX () --24 &&
+ this.y <$ gamePlayer.screenY () &&
+ this.y + gaugeWindowHeight> $ gamePlayer.screenY () --48) {
+ this.opacity = Math.min (collideOpacity, windowOpacity);
+ this.contentsOpacity = collideOpacity;
+ } else {
+ this.opacity = windowOpacity;
+ this.contentsOpacity = 255;
+ }
+ };
+
+ Window_MapHpGauge.prototype.refresh = function () {
+ this.contents.clear ();
+ var actor = $ gameParty.leader ();
+ if (actor) {
+ this.refreshFace ();
+ for (var i = 0; i <gauges.length; i ++) {
+ if (! $ GameSystem.isVisibleMapHpGauges (i)) continue;
+ var gauge = gauges [i];
+ this._lineHeight = gauge.height;
+ this.contents.fontSize = gauge.fontSize;
+ if (gauge.type ==='HP') {
+ this.drawActorHp (actor, gauge.x, gauge.y, gauge.width);
+ } else if (gauge.type ==='MP') {
+ this.drawActorMp (actor, gauge.x, gauge.y, gauge.width);
+ } else if (gauge.type ==='TP') {
+ this.drawActorTp (actor, gauge.x, gauge.y, gauge.width);
+ } else if (gauge.type ==='LV') {
+ this.drawLvGauge (actor, gauge);
+ } else if (gauge.type ==='VN') {
+ this.drawVnGauge (this._gaugeParams [i], gauge);
+ }
+ }
+ for (var i = 0; i <stateIconMax; i ++) {
+ if (! this._icons [i]) break;
+ var x = stateIconX + i * Window_Base._iconWidth;
+ this.drawIcon (this._icons [i], x, stateIconY);
+ }
+ if (goldWidth> 0) {
+ this.drawCurrencyValue (this._gold, TextManager.currencyUnit, goldX,
+ goldY, goldWidth);
+ }
+ this._lineHeight = 36;
+ }
+ };
+
+ Window_MapHpGauge.prototype.drawLvGauge = function (actor, gauge) {
+ if (actor.isMaxLevel ()) {
+ var value1 ='-------';
+ var value2 ='-------';
+ var rate = 1;
+ } else {
+ var n = actor.currentLevelExp ();
+ var value1 = actor.currentExp () --n;
+ var value2 = actor.nextLevelExp () --n;
+ var rate = value1 / value2;
+ }
+ this.drawGauge (gauge.x, gauge.y, gauge.width, rate, gauge.color [0], gauge.color [1]);
+ this.changeTextColor (this.systemColor ());
+ this.drawText (TextManager.levelA, gauge.x, gauge.y, 44);
+ var color = this.normalColor ();
+ this.changeTextColor (color);
+ var width = this.textWidth (TextManager.levelA) + 4;
+ this.drawText (actor.level, gauge.x + width, gauge.y, 44)
+ width = gauge.width --width --this.textWidth ('' + actor.level);
+ this.drawCurrentAndMax (value1, value2, gauge.x + gauge.width --width, gauge.y, width,
+ color, color);
+ };
+ 
+ Window_MapHpGauge.prototype.drawVnGauge = function (params, gauge) {
+ var rate = params.max === 0? 0: params.param / params.max;
+ this.drawGauge (gauge.x, gauge.y, gauge.width, rate, gauge.color [0], gauge.color [1]);
+ this.changeTextColor (this.systemColor ());
+ this.drawText (gauge.name, gauge.x, gauge.y, 44);
+ this.changeTextColor (this.normalColor ());
+ this.drawText (params.param, gauge.x + gauge.width --64, gauge.y, 64,'right');
+ };
+ 
+ Window_MapHpGauge.prototype.refreshFace = function () {
+ var actor = $ gameParty.leader ();
+ var bitmap = ImageManager.loadFace (actor.faceName ());
+ this._needFaceRefresh = bitmap.width === 0;
+ if (! this._needFaceRefresh) {
+ var x = gaugeWindowWidth --144 + faceOffsetX;
+ var y = faceOffsetY;
+ var height = Math.min (gaugeWindowHeight, 144);
+ this.drawFace (actor.faceName (), actor.faceIndex (), x, y, 144, height);
+ }
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Scene_Map
+ // //
+
+ var _Scene_Map_createDisplayObjects = Scene_Map.prototype.createDisplayObjects;
+ Scene_Map.prototype.createDisplayObjects = function () {
+ _Scene_Map_createDisplayObjects.call (this);
+ this.createMapHpGaugeWindow ();
+ };
+
+ Scene_Map.prototype.createMapHpGaugeWindow = function () {
+ this._mapHpGaugeWindow = new Window_MapHpGauge ();
+ this.addChild (this._mapHpGaugeWindow);
+ };
+
+ var _Scene_Map_terminate = Scene_Map.prototype.terminate;
+ Scene_Map.prototype.terminate = function () {
+ if (! SceneManager.isNextScene (Scene_Battle)) this._mapHpGaugeWindow.hide ();
+ _Scene_Map_terminate.call (this);
+ this.removeChild (this._mapHpGaugeWindow);
+ };
+ 
+ var _Scene_Map_launchBattle = Scene_Map.prototype.launchBattle;
+ Scene_Map.prototype.launchBattle = function () {
+ this._mapHpGaugeWindow.hide ();
+ _Scene_Map_launchBattle.call (this);
+ };
+ 
+}) ();

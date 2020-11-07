@@ -1,0 +1,216 @@
+ // ================================================ =============================
+// TMPlugin --Bitmap extension
+// Version: 2.0.2
+// Last updated: 2017/06/30
+// Distributor: http://hikimoki.sakura.ne.jp/
+// ------------------------------------------------ -----------------------------
+// Copyright (c) 2016 tomoaky
+// Released under the MIT license.
+// http://opensource.org/licenses/mit-license.php
+// ================================================ =============================
+
+/ *:
+ * @plugindesc Adds the ability to draw rounded rectangles and stars.
+ * There is also a function to automatically change the shape of various gauges to a rectangle with rounded corners.
+ *
+ * @author tomoaky (http://hikimoki.sakura.ne.jp/)
+ *
+ * @param gaugeHeight
+ * @type number
+ * @desc The thickness of the rounded gauge.
+ * Initial value: 18
+ * @default 18
+ *
+ * @param gaugeReduction
+ * @type number
+ * @desc The size to reduce only the gauge while keeping the gauge background.
+ * Initial value: 2
+ * @default 2
+ *
+ * @param cornerRadius
+ * @type number
+ * @desc The radius of the rounded corner of the rounded gauge.
+ * Initial value: 6
+ * @default 6
+ *
+ * @param minGaugeRate
+ * @type string
+ * @desc Lower limit of rounded gauge length (cornerRadius magnification).
+ * Initial value: 1.5
+ * @default 1.5
+ *
+ * @help
+ * TMPlugin --Bitmap extension ver2.0.2
+ * 
+ * How to use:
+ *
+ * When this plug-in is installed, the shape of the gauge of HP and MP becomes a rectangle with rounded corners.
+* Will be changed. It also adds multiple methods to the Bitmap.
+ *
+ * There are no plugin commands.
+ *
+ * This plug-in has been confirmed to work with RPG Maker MV Version 1.5.0.
+ *
+ * This plugin is distributed under the MIT license, for commercial use,
+ * You can freely use it for modification and redistribution.
+ *
+ *
+ * Method to be added (Bitmap):
+ *
+ * fillRoundRect (x, y, width, height, radius, color)
+ * Draw a rounded rectangle with width width and height height with coordinates (x, y) at the top left.
+ * For radius, specify the radius of the circle, and for color, specify the color to be filled with a character string.
+ * Example) bitmap.fillRoundRect (0, 0, 200, 48, 6,'# 000000');
+ *
+ * gradientFillRoundRect (x, y, width, height, radius, color1, color2, vertical)
+* Draws a rounded rectangle with a gradient. If vertical is true
+ * The direction of the gradation is vertical.
+ *
+ * fillStar (x, y, width, height, color)
+ * Stars inscribed in the range of width width and height height with coordinates (x, y) at the upper left
+ * Draw.
+ * Example: bitmap.fillStar (0, 0, 48, 48,'# ffff00');
+ *
+ * gradientFillStar (x, y, width, height, color1, color2, vertical)
+* Draw a star with a gradient. If vertical is true, the direction of the gradation is
+ * It will be in the vertical direction.
+ *
+ *
+ * Plugin parameter supplement:
+ *
+ * gaugeReduction
+ * The size to be reduced is set by the number of dots.
+ *
+ * cornerRadius
+ * If this value is 0, the rounded rectangle of the gauge is disabled.
+ *
+ * minGaugeRate
+ * To avoid distorting the display if the rounded gauge is too short, the gauge
+ * Do not make it shorter than the length set here.
+ * The actual lower limit is the value of cornerRadius multiplied by this value,
+ * Basically, the initial value of 1.5 should be fine, but if there is something wrong with the display
+ * Please adjust.
+ * /
+
+var Imported = Imported || {};
+Imported.TMBitmapEx = true;
+
+var TMPlugin = TMPlugin || {};
+TMPlugin.BitmapEx = {};
+TMPlugin.BitmapEx.Parameters = PluginManager.parameters ('TMBitmapEx');
+TMPlugin.BitmapEx.GaugeHeight = + (TMPlugin.BitmapEx.Parameters ['gaugeHeight'] || 18);
+TMPlugin.BitmapEx.GaugeReduction = + (TMPlugin.BitmapEx.Parameters ['gaugeReduction'] || 2);
+TMPlugin.BitmapEx.CornerRadius = + (TMPlugin.BitmapEx.Parameters ['cornerRadius'] || 6);
+TMPlugin.BitmapEx.MinGaugeRate = + (TMPlugin.BitmapEx.Parameters ['minGaugeRate'] || 1.5);
+TMPlugin.BitmapEx.MinGaugeWidth = Math.floor (TMPlugin.BitmapEx.MinGaugeRate *
+ TMPlugin.BitmapEx.CornerRadius);
+
+(function () {
+
+ // ------------------------------------------------ -----------------------------
+ // Bitmap
+ // //
+
+ Bitmap.prototype.fillRoundRect = function (x, y, width, height, radius, color) {
+ var context = this._context;
+ var pi = Math.PI;
+ context.save ();
+ context.fillStyle = color;
+ context.beginPath ();
+ context.arc (x + radius, y + radius, radius, -pi, -0.5 * pi, false);
+ context.arc (x + width --radius, y + radius, radius, -0.5 * pi, 0, false);
+ context.arc (x + width --radius, y + height --radius, radius, 0, 0.5 * pi, false);
+ context.arc (x + radius, y + height --radius, radius, 0.5 * pi, pi, false);
+ context.fill ();
+ context.restore ();
+ this._setDirty ();
+ };
+
+ Bitmap.prototype.gradientFillRoundRect = function (x, y, width, height, radius,
+ color1, color2, vertical) {
+ var context = this._context;
+ var pi = Math.PI;
+ var grad = vertical? context.createLinearGradient (x, y, x, y + height):
+ context.createLinearGradient (x, y, x + width, y);
+ grad.addColorStop (0, color1);
+ grad.addColorStop (1, color2);
+ context.save ();
+ context.fillStyle = grad;
+ context.beginPath ();
+ context.arc (x + radius, y + radius, radius, -pi, -0.5 * pi, false);
+ context.arc (x + width --radius, y + radius, radius, -0.5 * pi, 0, false);
+ context.arc (x + width --radius, y + height --radius, radius, 0, 0.5 * pi, false);
+ context.arc (x + radius, y + height --radius, radius, 0.5 * pi, pi, false);
+ context.fill ();
+ context.restore ();
+ this._setDirty ();
+ };
+
+ Bitmap.prototype.fillStar = function (x, y, width, height, color) {
+ var context = this._context;
+ var pi = Math.PI;
+ var cx = x + width / 2;
+ var cy = y + height / 2;
+ var r = pi + pi / 2;
+ context.save ();
+ context.fillStyle = color;
+ context.beginPath ();
+ context.moveTo (Math.cos (r) * width / 2 + cx, Math.sin (r) * height / 2 + cy);
+ for (var i = 0; i <5; i ++) {
+ r + = pi * 4/5;
+ context.lineTo (Math.cos (r) * width / 2 + cx, Math.sin (r) * height / 2 + cy);
+ }
+ context.fill ();
+ context.restore ();
+ this._setDirty ();
+ };
+
+ Bitmap.prototype.gradientFillStar = function (x, y, width, height, color1, color2,
+ vertical) {
+ var context = this._context;
+ var pi = Math.PI;
+ var cx = x + width / 2;
+ var cy = y + height / 2;
+ var r = pi + pi / 2;
+ var grad = vertical? context.createLinearGradient (x, y, x, y + height):
+ context.createLinearGradient (x, y, x + width, y);
+ grad.addColorStop (0, color1);
+ grad.addColorStop (1, color2);
+ context.save ();
+ context.fillStyle = grad;
+ context.beginPath ();
+ context.moveTo (Math.cos (r) * width / 2 + cx, Math.sin (r) * height / 2 + cy);
+ for (var i = 0; i <5; i ++) {
+ r + = pi * 4/5;
+ context.lineTo (Math.cos (r) * width / 2 + cx, Math.sin (r) * height / 2 + cy);
+ }
+ context.fill ();
+ context.restore ();
+ this._setDirty ();
+ };
+
+ // ------------------------------------------------ -----------------------------
+ // Window_Base
+ // //
+
+ var _Window_Base_drawGauge = Window_Base.prototype.drawGauge;
+ Window_Base.prototype.drawGauge = function (x, y, width, rate, color1, color2) {
+ if (TMPlugin.BitmapEx.CornerRadius> 0) {
+ y = y + this.lineHeight () --TMPlugin.BitmapEx.GaugeHeight --2;
+ this.contents.fillRoundRect (x, y, width, TMPlugin.BitmapEx.GaugeHeight,
+ TMPlugin.BitmapEx.CornerRadius, this.gaugeBackColor ());
+ var fillW = Math.floor ((width --TMPlugin.BitmapEx.GaugeReduction * 2) * rate);
+ if (fillW> 0) {
+ fillW = Math.max (fillW, TMPlugin.BitmapEx.MinGaugeWidth);
+ var fillH = TMPlugin.BitmapEx.GaugeHeight --TMPlugin.BitmapEx.GaugeReduction * 2
+ this.contents.gradientFillRoundRect (x + TMPlugin.BitmapEx.GaugeReduction,
+ y + TMPlugin.BitmapEx.GaugeReduction,
+ fillW, fillH, TMPlugin.BitmapEx.CornerRadius,
+ color1, color2);
+ }
+ } else {
+ _Window_Base_drawGauge.call (this, x, y, width, rate, color1, color2)
+ }
+ };
+
+}) ();
