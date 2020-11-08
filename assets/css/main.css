@@ -3765,10 +3765,10 @@ input, select, textarea {
 			}
 
 			#sidebar nav a:after {
-				background-image: -moz-linear-gradient(to right, #42a653, #4eb768);
-				background-image: -webkit-linear-gradient(to right, #42a647, #4eb75c);
-				background-image: -ms-linear-gradient(to right, #4aa642, #4eb75c);
-				background-image: linear-gradient(to right, #42a658, #4eb760);
+				background-image: -moz-linear-gradient(to right, #00ffea, #ffda8b);
+				background-image: -webkit-linear-gradient(to right, #00ffea, #ffda8b);
+				background-image: -ms-linear-gradient(to right, #00ffea, #ffda8b);
+				background-image: linear-gradient(to right, #00ffea, #ffda8b);
 				-moz-transition: max-width 0.2s ease;
 				-webkit-transition: max-width 0.2s ease;
 				-ms-transition: max-width 0.2s ease;
