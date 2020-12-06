@@ -588,7 +588,7 @@ function Game_Bullet() {
 
   var parameters = PluginManager.parameters('TMJumpAction');
 
-  var actGravity = +(parameters['gravity'] || 0.005);
+  var actGravity = +(parameters['gravity'] || 0.008); //0.005
   var actFriction = +(parameters['friction'] || 0.001);
   var actTileMarginTop = +(parameters['tileMarginTop'] || 0.5);
   var actStepsForTurn = +(parameters['stepsForTurn'] || 2);
@@ -1251,7 +1251,7 @@ function Game_Bullet() {
     this._dashCount = 0;
     this._friction = 0;
     this._moveSpeed = 0.1; //0.05
-    this._jumpSpeed = 0.14;
+    this._jumpSpeed = 0.18; //0.14
     this._swimSpeed = 0.02;
     this._dashSpeedX = 0.1;
     this._dashSpeedY = 0.03;
@@ -1425,7 +1425,7 @@ function Game_Bullet() {
 
   // 最大落下速度の取得
   Game_CharacterBase.prototype.maxFallSpeed = function() {
-    return this.isSwimming() ? 0.04 : 0.6;
+    return this.isSwimming() ? 0.04 : 1; //0.6
   };
 
   // 摩擦の処理
@@ -1819,7 +1819,7 @@ function Game_Bullet() {
   //  if (this.isLocking()) {
   //    return;
   //  }
-    battler.startDamagePopup();
+    battler.startDamagePopup();          //needs to be removed
     if (battler._actionResult.isStateAdded(battler.deathStateId())) {
       this.battlerDead();
     }
@@ -2624,7 +2624,7 @@ function Game_Bullet() {
       var characterIndex  = actor.characterIndex();
       var data = actor.actor();
       this._moveSpeed = +(data.meta['move_speed'] || 0.1);
-      this._jumpSpeed = +(data.meta['jump_speed'] || 0.14);
+      this._jumpSpeed = +(data.meta['jump_speed'] || 0.18); //0.14
       this._swimSpeed = +(data.meta['swim_speed'] || 0.02);
       this._ladderSpeed = +(data.meta['ladder_speed'] || 0.04);
       this._accele = +(data.meta['accele'] || 0.009);
@@ -2634,7 +2634,7 @@ function Game_Bullet() {
       this._mulchJump = +(data.meta['mulch_jump'] || 2);
       this._weight = +(data.meta['weight'] || 0);
       this._carryPower = +(data.meta['carry_power'] || 0);
-      this._gravity = +(data.meta['gravity'] || 0.005);
+      this._gravity = +(data.meta['gravity'] || 0.008); //0.005
       this._dashSpeedX = +(data.meta['dash_speed_x'] || 0.14);
       this._dashSpeedY = +(data.meta['dash_speed_y'] || 0.03);
       this._dashCountTime = +(data.meta['dash_count'] || 15);
@@ -3181,7 +3181,7 @@ function Game_Bullet() {
     if (!this.isEffecting()) _Sprite_Character_updateOther.call(this);
   };
 
-  // ダメージポップアップの更新
+  // ダメージポップアップの更新   Remove this
   Sprite_Character.prototype.updateDamagePopup = function() {
     if (this._character.isBattler()) this.setupDamagePopup();
     if (this._damages.length > 0) {
@@ -3197,7 +3197,7 @@ function Game_Bullet() {
     }
   };
 
-  // ダメージポップアップのセット
+  // ダメージポップアップのセット   Remove this
   Sprite_Character.prototype.setupDamagePopup = function() {
     var battler = this._character.battler();
     if (battler.isDamagePopupRequested()) {
@@ -3205,7 +3205,7 @@ function Game_Bullet() {
       sprite.x = this.x;
       sprite.y = this.y;
       sprite.z = this.z + 1;
-      sprite.setup(battler);
+      //sprite.setup(battler);
       this._damages.push(sprite);
       this.parent.addChild(sprite);
       battler.clearDamagePopup();
@@ -3630,7 +3630,7 @@ function Game_Bullet() {
   var _Window_Option_makeCommandList = Window_Options.prototype.makeCommandList;
   Window_Options.prototype.makeCommandList = function() {
     _Window_Option_makeCommandList.call(this);
-    if (padConfigCommand) this.addCommand(padConfigCommand, 'padConfig');
+    if (false) this.addCommand(padConfigCommand, 'padConfig');
     // 常にダッシュは不要なので削除してしまう。
     for (var i = 0; i < this._list.length; i++) {
       if (this._list[i].symbol === 'alwaysDash') {
@@ -3702,7 +3702,7 @@ function Game_Bullet() {
 
   Window_PadOptions.prototype.makeCommandList = function() {
     for (var i = 1; i <= 12; i++) {
-      this.addCommand('パッドボタン' + i, 'padButton' + i);
+      this.addCommand('Button ' + i, 'padButton' + i);
     }
   };
 
